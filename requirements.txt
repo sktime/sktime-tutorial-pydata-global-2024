@@ -1,6 +1,5 @@
-sktime
-statsmodels
-seaborn
-pmdarima
-kotsu
 jupyterlab
+plotly
+seaborn
+skchange
+sktime
