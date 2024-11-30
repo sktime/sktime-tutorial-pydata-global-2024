@@ -66,3 +66,18 @@ def add_subset_segment_anomaly_vrects(fig, subset_anomalies):
                 col=1,
             )
     return fig
+
+
+def to_time_intervals(intervals: pd.Series, times: pd.Index) -> pd.Series:
+    time_intervals = pd.Series(
+        [
+            pd.Interval(
+                times[interval.left],
+                times[interval.right - 1] + pd.Timedelta("10min"),
+                closed="left",
+            )
+            for interval in intervals
+        ],
+        name="interval",
+    )
+    return time_intervals

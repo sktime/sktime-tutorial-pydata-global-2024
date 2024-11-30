@@ -1,5 +1,5 @@
 jupyterlab
 plotly
 seaborn
-skchange
 sktime
+git+https://github.com/NorskRegnesentral/skchange
