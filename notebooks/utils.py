@@ -33,10 +33,21 @@ def add_changepoint_vlines(fig, changepoints):
     return fig
 
 
-def add_segmentation_vrects(fig, segments, colors=px.colors.qualitative.Alphabet):
+def add_segmentation_vrects(
+    fig, segments, segment_labels=None, colors=px.colors.qualitative.Alphabet
+):
     fig = copy.deepcopy(fig)
-    for i, segment in enumerate(segments):
-        color = colors[i % len(colors)]
+    if segment_labels is None:
+        segment_labels = pd.RangeIndex(len(segments))
+
+    if len(segments) != len(segment_labels):
+        raise ValueError("segments and segment_labels must be the same length")
+
+    if segment_labels.dtype != int:
+        raise ValueError("segment_labels must be of type int")
+
+    for segment, segment_label in zip(segments.values, segment_labels.values):
+        color = colors[segment_label % len(colors)]
         fig.add_vrect(
             x0=segment.left,
             x1=segment.right,
@@ -81,3 +92,84 @@ def to_time_intervals(intervals: pd.Series, times: pd.Index) -> pd.Series:
         name="interval",
     )
     return time_intervals
+
+
+def plot_changepoint_illustration(df, cpts, base_width=800, base_height=400):
+    cpt_fig = plot_multivariate_time_series(df)
+    cpt_fig = add_changepoint_vlines(cpt_fig, cpts)
+    for i, cpt in enumerate(cpts):
+        cpt_fig.add_annotation(
+            x=cpt,
+            y=-0.13,
+            text=f"changepoint {i+1}",
+            showarrow=False,
+            yshift=-10,
+            font=dict(size=16),
+            xref="x",
+            yref="paper",
+        )
+    cpt_fig.update_layout(
+        showlegend=False, xaxis_title=None, width=base_width, height=base_height
+    )
+    return cpt_fig
+
+
+def plot_segmentation_illustration(
+    df, segments, segment_labels, base_width=800, base_height=400
+):
+    segment_fig = plot_multivariate_time_series(df)
+    segment_fig = add_segmentation_vrects(segment_fig, segments, segment_labels)
+    for i, segment in enumerate(segments):
+        segment_fig.add_annotation(
+            x=segment.mid,
+            y=-0.22,
+            text=f"segment {i}<br> label {segment_labels[i]}",
+            showarrow=False,
+            yshift=-10,
+            font=dict(size=16),
+            xref="x",
+            yref="paper",
+        )
+    segment_fig.update_layout(
+        showlegend=False, xaxis_title=None, width=base_width, height=base_height
+    )
+    return segment_fig
+
+
+def plot_point_anomaly_illustration(
+    df, point_anomalies, base_width=800, base_height=400
+):
+    outlier_plot = plot_multivariate_time_series(df)
+    outlier_plot.add_scatter(
+        x=point_anomalies,
+        y=df.iloc[point_anomalies, 0],
+        mode="markers",
+        marker=dict(symbol="x", size=10, color="red"),
+        name="Point anomaly",
+    ).update_layout(width=base_width, height=base_height)
+    return outlier_plot
+
+
+def plot_segment_anomaly_illustration(df, anomalies, base_width=800, base_height=400):
+    anomaly_segments = pd.Series(
+        [pd.Interval(*anomaly, closed="left") for anomaly in anomalies]
+    )
+    anomaly_plot = plot_multivariate_time_series(df)
+    anomaly_plot = add_segmentation_vrects(
+        anomaly_plot, anomaly_segments, colors=["red"]
+    )
+    for i, segment in enumerate(anomaly_segments):
+        anomaly_plot.add_annotation(
+            x=segment.mid,
+            y=-0.13,
+            text=f"Segment anomaly {i+1}",
+            showarrow=False,
+            yshift=-10,
+            font=dict(size=16),
+            xref="x",
+            yref="paper",
+        )
+    anomaly_plot.update_layout(
+        showlegend=False, xaxis_title=None, width=base_width, height=base_height
+    )
+    return anomaly_plot
