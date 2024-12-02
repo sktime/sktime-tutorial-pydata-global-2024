@@ -163,3 +163,61 @@ def plot_segment_anomaly_illustration(df, anomaly_segments):
         )
     anomaly_plot.update_layout(showlegend=False, xaxis_title=None)
     return anomaly_plot
+
+
+def plot_interval_costs(df, intervals, costs):
+    fig = px.line(df)
+
+    means = [df.iloc[interval[0] : interval[1]].mean()[0] for interval in intervals]
+
+    costs = costs.reshape(-1)
+    for i, (interval, cost, mean) in enumerate(zip(intervals, costs, means)):
+        print(mean)
+        fig.add_vrect(
+            x0=interval[0],
+            x1=interval[1],
+            fillcolor="rgba(0,0,0,0.1)",
+            layer="below",
+            line_width=0,
+            annotation=dict(text=f"interval {i}: cost={int(cost)}"),
+        )
+        fig.add_shape(
+            type="line",
+            x0=interval[0],
+            x1=interval[1],
+            y0=mean,
+            y1=mean,
+            line=dict(dash="dash", color="red"),
+            name="Mean line",
+        )
+
+    # Add a dummy scatter to include the red dashed line in the legend
+    fig.add_scatter(
+        x=[None],
+        y=[None],
+        mode="lines",
+        line=dict(dash="dash", color="red"),
+        name="mean",
+    )
+    return fig
+
+
+def plot_interval_change_scores(df, start_split_ends, change_scores):
+    fig = px.line(df)
+    change_scores = change_scores.reshape(-1)
+
+    for i, (start_split_end, score) in enumerate(zip(start_split_ends, change_scores)):
+        start = start_split_end[0]
+        split = start_split_end[1]
+        end = start_split_end[2]
+        fig.add_vrect(
+            x0=start,
+            x1=end,
+            fillcolor="rgba(0,0,0,0.1)",
+            layer="below",
+            line_width=0,
+            annotation=dict(text=f"interval {i}: score={score.round(1)}"),
+        )
+        fig.add_vline(x=split, line=dict(color="darkgrey"))
+
+    return fig
