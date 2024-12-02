@@ -1,6 +1,5 @@
-sktime
-statsmodels
-seaborn
-pmdarima
-kotsu
 jupyterlab
+plotly
+seaborn
+sktime
+git+https://github.com/NorskRegnesentral/skchange
