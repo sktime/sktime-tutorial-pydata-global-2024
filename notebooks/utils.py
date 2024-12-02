@@ -172,7 +172,6 @@ def plot_interval_costs(df, intervals, costs):
 
     costs = costs.reshape(-1)
     for i, (interval, cost, mean) in enumerate(zip(intervals, costs, means)):
-        print(mean)
         fig.add_vrect(
             x0=interval[0],
             x1=interval[1],
