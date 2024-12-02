@@ -16,13 +16,15 @@ def load_stallion(as_period=False) -> Tuple[pd.DataFrame, pd.DataFrame]:
     return X, y
 
 
-def plot_multivariate_time_series(df):
+def plot_multivariate_time_series(df, color=None):
     plot_df = (
         df.stack()
         .reset_index()
-        .rename({"level_0": "index", "level_1": "variable", 0: "value"}, axis=1)
+        .rename({"level_0": df.index.name, "level_1": "variable", 0: "value"}, axis=1)
     )
-    fig = px.line(plot_df, x="index", y="value", facet_row="variable")
+    fig = px.line(
+        plot_df, x=df.index.name, y="value", facet_row="variable", color=color
+    )
     return fig
 
 
@@ -94,30 +96,27 @@ def to_time_intervals(intervals: pd.Series, times: pd.Index) -> pd.Series:
     return time_intervals
 
 
-def plot_changepoint_illustration(df, cpts, base_width=800, base_height=400):
+def plot_changepoint_illustration(df, cpts):
     cpt_fig = plot_multivariate_time_series(df)
     cpt_fig = add_changepoint_vlines(cpt_fig, cpts)
     for i, cpt in enumerate(cpts):
         cpt_fig.add_annotation(
             x=cpt,
-            y=-0.13,
-            text=f"changepoint {i+1}",
+            y=1.2,
+            text=f"change point {i+1}",
             showarrow=False,
             yshift=-10,
             font=dict(size=16),
             xref="x",
             yref="paper",
         )
-    cpt_fig.update_layout(
-        showlegend=False, xaxis_title=None, width=base_width, height=base_height
-    )
+    cpt_fig.update_layout(showlegend=False, xaxis_title=None)
     return cpt_fig
 
 
-def plot_segmentation_illustration(
-    df, segments, segment_labels, base_width=800, base_height=400
-):
-    segment_fig = plot_multivariate_time_series(df)
+def plot_segmentation_illustration(df, segments, segment_labels):
+    cpts = segments.iloc[1:].array.left
+    segment_fig = plot_changepoint_illustration(df, cpts)
     segment_fig = add_segmentation_vrects(segment_fig, segments, segment_labels)
     for i, segment in enumerate(segments):
         segment_fig.add_annotation(
@@ -130,15 +129,11 @@ def plot_segmentation_illustration(
             xref="x",
             yref="paper",
         )
-    segment_fig.update_layout(
-        showlegend=False, xaxis_title=None, width=base_width, height=base_height
-    )
+    segment_fig.update_layout(showlegend=False, xaxis_title=None)
     return segment_fig
 
 
-def plot_point_anomaly_illustration(
-    df, point_anomalies, base_width=800, base_height=400
-):
+def plot_point_anomaly_illustration(df, point_anomalies):
     outlier_plot = plot_multivariate_time_series(df)
     outlier_plot.add_scatter(
         x=point_anomalies,
@@ -146,14 +141,11 @@ def plot_point_anomaly_illustration(
         mode="markers",
         marker=dict(symbol="x", size=10, color="red"),
         name="Point anomaly",
-    ).update_layout(width=base_width, height=base_height)
+    )
     return outlier_plot
 
 
-def plot_segment_anomaly_illustration(df, anomalies, base_width=800, base_height=400):
-    anomaly_segments = pd.Series(
-        [pd.Interval(*anomaly, closed="left") for anomaly in anomalies]
-    )
+def plot_segment_anomaly_illustration(df, anomaly_segments):
     anomaly_plot = plot_multivariate_time_series(df)
     anomaly_plot = add_segmentation_vrects(
         anomaly_plot, anomaly_segments, colors=["red"]
@@ -169,7 +161,5 @@ def plot_segment_anomaly_illustration(df, anomalies, base_width=800, base_height
             xref="x",
             yref="paper",
         )
-    anomaly_plot.update_layout(
-        showlegend=False, xaxis_title=None, width=base_width, height=base_height
-    )
+    anomaly_plot.update_layout(showlegend=False, xaxis_title=None)
     return anomaly_plot
