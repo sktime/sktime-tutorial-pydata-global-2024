@@ -1,12 +1,16 @@
 Welcome to the sktime workshop at pydata global 2024
 ====================================================
 
-This tutorial is about [sktime] - a unified framework for machine learning with time series. sktime contains algorithms and tools for building, applying, evaluating modular pipelines and composites for a variety of time series learning tasks, including forecasting, detection, classification, regression.
+This tutorial is about [skchange] and sktime [sktime].
 
-`sktime` is easily extensible by anyone, and interoperable with the python data science stack.
+`skchange` is a python compatible framework library for detecting anomalies, changepoints in time series, and segmentation.
 
-FILL IN ABSTRACT
+`skchange` is based on, and extends, `sktime`, the most widely used scikit-learn compatible framework library for learning with time series.
 
+Both packages are maintained under permissive license, easily extensible by anyone, and interoperable with the python data science stack.
+This workshop gives a hands-on introduction to the new joint detection interface developed in skchange and sktime, for detecting point anomalies, changepoints, and segment anomalies.
+
+[skchange]: https://skchange.readthedocs.io/en/latest/
 [sktime]: https://www.sktime.net
 
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/sktime/sktime-tutorial-pydata-global-2024/main?filepath=notebooks) [![!discord](https://img.shields.io/static/v1?logo=discord&label=discord&message=chat&color=lightgreen)](https://discord.com/invite/54ACzaFsn7) [![!slack](https://img.shields.io/static/v1?logo=linkedin&label=LinkedIn&message=news&color=lightblue)](https://www.linkedin.com/company/scikit-time/)
@@ -30,9 +34,16 @@ Please let us know on the [sktime discord](https://discord.com/invite/54ACzaFsn7
 
 ## :bulb: Description
 
-FILL IN
+The tutorial will give an introduction to the detection API in skchange and sktime, with a focus on unsupervised detection of anomalies and change points. The tutorial includes:
 
-`sktime` is developed by an open community, with aims of ecosystem integration in a neutral, charitable space. We welcome contributions and seek to provides opportunity for anyone worldwide.
+- An introduction to the different types of detection tasks for time series data: anomalies, changepoints, point/set/segment, un/supervised, stream, panel, uni/multivariate
+- `skchange` and `sktime` for anomaly, changepoint detection
+- cost and score functions for anomaly and changepoint detectors
+- pipelines for anomaly and changepoint detection
+
+`skchange` is developed at Norsk Regnesentral.
+
+Both `skchange` and `sktime` are developed by open communities, with aims of ecosystem integration in a neutral, charitable space. We welcome contributions and seek to provides opportunity for anyone worldwide.
 
 We invite anyone to get involved as a developer, user, supporter (or any combination of these).
 
@@ -62,7 +73,8 @@ We invite anyone to get involved as a developer, user, supporter (or any combina
 
 ## :wave: How to contribute
 
-If you're interested in contributing to `sktime`, you can find out more how to get involved [here](https://www.sktime.net/en/latest/get_involved.html).
+If you're interested in contributing to `skchange` or `sktime`,
+you can find out more how to get involved [here](https://www.sktime.net/en/latest/get_involved.html).
 
 Any contributions are welcome, not just code!
 
@@ -82,22 +94,22 @@ To clone the repository locally:
 ### Using conda env
 
 1. Create a python virtual environment:
-`conda create -y -n sktime_pydata python=3.11`
+`conda create -y -n skchange_pydata python=3.11`
 2. Install required packages:
-`conda install -y -n sktime_pydata pip skchange sktime seaborn jupyter pmdarima statsmodels`
+`conda install -y -n skchange_pydata pip skchange sktime seaborn jupyter pmdarima statsmodels`
 3. Activate your environment:
-`conda activate sktime_pydata`
+`conda activate skchange_pydata`
 4. If using jupyter: make the environment available in jupyter:
-`python -m ipykernel install --user --name=sktime_pydata`
+`python -m ipykernel install --user --name=skchange_pydata`
 
 ### Using python venv
 
 1. Create a python virtual environment:
-`python -m venv sktime_pydata`
+`python -m venv skchange_pydata`
 2. Activate your environment:
- - `source sktime_pydata/bin/activate` for Linux
- - sktime_pydata/Scripts/activate` for Windows
+ - `source skchange_pydata/bin/activate` for Linux
+ - skchange_pydata/Scripts/activate` for Windows
 3. Install the requirements:
 `pip install -r requirements`
 4. If using jupyter: make the environment available in jupyter:
-`python -m ipykernel install --user --name=sktime_pydata`
+`python -m ipykernel install --user --name=skchange_pydata`
