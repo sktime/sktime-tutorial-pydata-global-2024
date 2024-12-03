@@ -159,10 +159,15 @@ def plot_segment_anomaly_illustration(df, anomaly_segments):
     return anomaly_plot
 
 
-def plot_interval_costs(df, intervals, costs):
+def plot_interval_costs(
+    df, intervals, costs, optim_mean=True, fixed_mean=None, cost_name="cost"
+):
     fig = px.line(df)
 
-    means = [df.iloc[interval[0] : interval[1]].mean()[0] for interval in intervals]
+    if optim_mean:
+        means = [df.iloc[interval[0] : interval[1]].mean()[0] for interval in intervals]
+    else:
+        means = [None] * len(intervals)
 
     costs = costs.reshape(-1)
     for i, (interval, cost, mean) in enumerate(zip(intervals, costs, means)):
@@ -172,26 +177,39 @@ def plot_interval_costs(df, intervals, costs):
             fillcolor="rgba(0,0,0,0.1)",
             layer="below",
             line_width=0,
-            annotation=dict(text=f"interval {i}: cost={int(cost)}"),
+            annotation=dict(text=f"interval {i}: {cost_name}={int(cost)}"),
         )
-        fig.add_shape(
-            type="line",
-            x0=interval[0],
-            x1=interval[1],
-            y0=mean,
-            y1=mean,
-            line=dict(dash="dash", color="red"),
-            name="Mean line",
-        )
+        if optim_mean:
+            fig.add_shape(
+                type="line",
+                x0=interval[0],
+                x1=interval[1],
+                y0=mean,
+                y1=mean,
+                line=dict(dash="dash", color="red"),
+            )
 
     # Add a dummy scatter to include the red dashed line in the legend
-    fig.add_scatter(
-        x=[None],
-        y=[None],
-        mode="lines",
-        line=dict(dash="dash", color="red"),
-        name="mean",
-    )
+    if optim_mean:
+        fig.add_scatter(
+            x=[None],
+            y=[None],
+            mode="lines",
+            line=dict(dash="dash", color="red"),
+            name="mean",
+        )
+
+    if fixed_mean is not None:
+        fig.add_hline(
+            y=fixed_mean, line=dict(dash="dash", color="orange"), name="fixed mean"
+        )
+        fig.add_scatter(
+            x=[None],
+            y=[None],
+            mode="lines",
+            line=dict(dash="dash", color="orange"),
+            name="fixed mean",
+        )
     return fig
 
 
