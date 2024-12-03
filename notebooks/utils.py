@@ -28,31 +28,22 @@ def plot_multivariate_time_series(df, color=None):
     return fig
 
 
-def add_changepoint_vlines(fig, changepoints):
+def add_changepoint_vlines(fig, changepoints, locs_col="ilocs"):
     fig = copy.deepcopy(fig)
-    for changepoint in changepoints:
+    for changepoint in changepoints[locs_col]:
         fig.add_vline(x=changepoint, line_dash="dash", line_color="red")
     return fig
 
 
 def add_segmentation_vrects(
-    fig, segments, segment_labels=None, colors=px.colors.qualitative.Alphabet
+    fig, segments: pd.DataFrame, colors=px.colors.qualitative.Alphabet, locs_col="ilocs"
 ):
     fig = copy.deepcopy(fig)
-    if segment_labels is None:
-        segment_labels = pd.RangeIndex(len(segments))
-
-    if len(segments) != len(segment_labels):
-        raise ValueError("segments and segment_labels must be the same length")
-
-    if segment_labels.dtype != int:
-        raise ValueError("segment_labels must be of type int")
-
-    for segment, segment_label in zip(segments.values, segment_labels.values):
-        color = colors[segment_label % len(colors)]
+    for _, segment in segments.iterrows():
+        color = colors[segment.loc["labels"] % len(colors)]
         fig.add_vrect(
-            x0=segment.left,
-            x1=segment.right,
+            x0=segment.loc[locs_col].left,
+            x1=segment.loc[locs_col].right,
             fillcolor=color,
             opacity=0.2,
             line_width=0,
@@ -65,11 +56,11 @@ def add_subset_segment_anomaly_vrects(fig, subset_anomalies):
     fig = copy.deepcopy(fig)
     n_vars = len(fig.data)
     for row in subset_anomalies.itertuples():
-        columns = row.anomaly_columns
+        columns = row.icolumns
         for col in columns:
             fig.add_vrect(
-                x0=row.anomaly_interval.left,
-                x1=row.anomaly_interval.right,
+                x0=row.ilocs.left,
+                x1=row.ilocs.right,
                 fillcolor="red",
                 opacity=0.2,
                 line_width=0,
@@ -82,6 +73,7 @@ def add_subset_segment_anomaly_vrects(fig, subset_anomalies):
 
 
 def to_time_intervals(intervals: pd.Series, times: pd.Index) -> pd.Series:
+    ilocs = intervals["ilocs"]
     time_intervals = pd.Series(
         [
             pd.Interval(
@@ -89,16 +81,17 @@ def to_time_intervals(intervals: pd.Series, times: pd.Index) -> pd.Series:
                 times[interval.right - 1] + pd.Timedelta("10min"),
                 closed="left",
             )
-            for interval in intervals
+            for interval in ilocs
         ],
-        name="interval",
+        name="time_locs",
     )
-    return time_intervals
+    return pd.concat([intervals, time_intervals], axis=1)
 
 
 def plot_changepoint_illustration(df, cpts):
     cpt_fig = plot_multivariate_time_series(df)
-    cpt_fig = add_changepoint_vlines(cpt_fig, cpts)
+    cpt_inner = pd.DataFrame({"ilocs": cpts})
+    cpt_fig = add_changepoint_vlines(cpt_fig, cpt_inner)
     for i, cpt in enumerate(cpts):
         cpt_fig.add_annotation(
             x=cpt,
@@ -114,11 +107,12 @@ def plot_changepoint_illustration(df, cpts):
     return cpt_fig
 
 
-def plot_segmentation_illustration(df, segments, segment_labels):
-    cpts = segments.iloc[1:].array.left
+def plot_segmentation_illustration(df, segments):
+    segment_labels = segments["labels"]
+    cpts = segments["ilocs"].array.left[1:]
     segment_fig = plot_changepoint_illustration(df, cpts)
-    segment_fig = add_segmentation_vrects(segment_fig, segments, segment_labels)
-    for i, segment in enumerate(segments):
+    segment_fig = add_segmentation_vrects(segment_fig, segments)
+    for i, segment in enumerate(segments["ilocs"]):
         segment_fig.add_annotation(
             x=segment.mid,
             y=-0.22,
@@ -150,7 +144,7 @@ def plot_segment_anomaly_illustration(df, anomaly_segments):
     anomaly_plot = add_segmentation_vrects(
         anomaly_plot, anomaly_segments, colors=["red"]
     )
-    for i, segment in enumerate(anomaly_segments):
+    for i, segment in enumerate(anomaly_segments["ilocs"]):
         anomaly_plot.add_annotation(
             x=segment.mid,
             y=-0.13,
