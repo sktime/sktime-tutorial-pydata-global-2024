@@ -2,4 +2,4 @@ jupyterlab
 plotly
 seaborn
 sktime
-git+https://github.com/NorskRegnesentral/skchange
+skchange
