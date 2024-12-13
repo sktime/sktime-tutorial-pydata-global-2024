@@ -1,5 +1,5 @@
 jupyterlab
 plotly
 seaborn
-sktime
-skchange
+sktime>=0.35
+skchange>=0.10
