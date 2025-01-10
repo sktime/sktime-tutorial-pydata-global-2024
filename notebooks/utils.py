@@ -95,7 +95,7 @@ def plot_changepoint_illustration(df, cpts):
     for i, cpt in enumerate(cpts):
         cpt_fig.add_annotation(
             x=cpt,
-            y=1.2,
+            y=1.18,
             text=f"change point {i+1}",
             showarrow=False,
             yshift=-10,
@@ -134,8 +134,20 @@ def plot_point_anomaly_illustration(df, point_anomalies):
         y=df.iloc[point_anomalies, 0],
         mode="markers",
         marker=dict(symbol="x", size=10, color="red"),
-        name="Point anomaly",
+        name="point anomaly",
+        showlegend=False,
     )
+    for i, point_anomaly in enumerate(point_anomalies):
+        outlier_plot.add_annotation(
+            x=point_anomaly,
+            y=1.18,
+            text=f"point anomaly {i+1}",
+            showarrow=False,
+            yshift=-10,
+            font=dict(size=16),
+            xref="x",
+            yref="paper",
+        )
     return outlier_plot
 
 
@@ -148,7 +160,7 @@ def plot_segment_anomaly_illustration(df, anomaly_segments):
         anomaly_plot.add_annotation(
             x=segment.mid,
             y=-0.13,
-            text=f"Segment anomaly {i+1}",
+            text=f"segment anomaly {i+1}",
             showarrow=False,
             yshift=-10,
             font=dict(size=16),
