@@ -2,3 +2,4 @@ __pycache__/
 forecasting_results.csv
 
 venv/
+.venv/
