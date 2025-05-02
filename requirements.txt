@@ -2,4 +2,4 @@ jupyterlab
 plotly
 seaborn
 sktime>=0.35
-skchange>=0.12
+skchange>=0.13
